@@ -1,4 +1,4 @@
-module /demo/
+module github.com/quiddler/godemo
 
 go 1.17
 
