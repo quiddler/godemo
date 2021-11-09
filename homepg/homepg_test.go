@@ -17,7 +17,7 @@ func Test(t *testing.T) {
 		expectedBody   string
 	}{
 		{
-			name:           "good",
+			name:           "home-route",
 			in:             httptest.NewRequest("GET", "/", nil),
 			out:            httptest.NewRecorder(),
 			expectedStatus: http.StatusOK,
