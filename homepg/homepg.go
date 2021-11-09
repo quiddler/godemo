@@ -6,18 +6,42 @@ import (
 	"time"
 )
 
-const message = "Hello fellow gophers!"
+const (
+	msg = "Hello fellow gophers!"
+	beg = "process '/' request from %s at %s\n"
+	end = "finished '/' in %d\n"
+)
 
 type HomePage struct {
 	Logger *log.Logger
 }
 
+func New(logger *log.Logger) *HomePage {
+	return &HomePage{
+		Logger: logger,
+	}
+}
+
 func (h *HomePage) Handler(w http.ResponseWriter, r *http.Request) {
-	begTime := time.Now()
-	h.Logger.Printf("processing '/' request at %s\n", begTime.Format("YYYY-MM-dd hh:mm"))
 	w.Header().Add("Content-Type", "text-plain; charset=utf-8")
 	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
+
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(message))
-	h.Logger.Printf("finished '/' in %v ms\n", time.Since(begTime))
+
+	w.Write([]byte(msg))
+}
+
+func (h *HomePage) Log(next http.HandlerFunc) http.HandlerFunc {
+	return func(rw http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		h.Logger.Printf(beg, r.RemoteAddr, start.Format(time.RFC3339Nano))
+		defer h.Logger.Printf(end, time.Since(start))
+
+		next(rw, r)
+	}
+}
+
+func (h *HomePage) RegisterRoutes(mux *http.ServeMux) {
+	mux.HandleFunc("/", h.Log(h.Handler))
 }

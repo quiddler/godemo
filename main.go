@@ -11,7 +11,7 @@ import (
 
 // run the following command to get the .pem and .crt files that tls relies on:
 // openssl req -x509 -nodes -newkey ec -pkeyopt ec_paramgen_curve:secp384r1 -keyout ecdsa.pem -out mycert.crt -days 3650
-var (
+const (
 	KeyFile     = "./certs/ecdsa.pem"
 	CertFile    = "./certs/mycert.crt"
 	ServiceAddr = ":8080"
@@ -19,18 +19,14 @@ var (
 
 func main() {
 
-	home := homepg.HomePage{
-		Logger: log.New(os.Stdout, "demo - ", log.LstdFlags|log.Lshortfile),
-	}
+	logger := log.New(os.Stdout, "demo - ", log.LstdFlags|log.Lshortfile)
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", home.Handler)
+	h := homepg.New(logger)
+	h.RegisterRoutes(mux)
 
 	s := server.New(mux, ServiceAddr)
 
-	err := s.ListenAndServeTLS(CertFile, KeyFile)
-	if err != nil {
-		log.Fatalf("server failed to start: %v", err)
-	}
+	logger.Fatal(s.ListenAndServeTLS(CertFile, KeyFile))
 }
