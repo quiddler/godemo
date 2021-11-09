@@ -21,7 +21,7 @@ func Test(t *testing.T) {
 			in:             httptest.NewRequest("GET", "/", nil),
 			out:            httptest.NewRecorder(),
 			expectedStatus: http.StatusOK,
-			expectedBody:   msg,
+			expectedBody:   "whell i do love me some testin' dare boi",
 		},
 	}
 	for _, test := range tests {
@@ -37,7 +37,7 @@ func Test(t *testing.T) {
 			}
 
 			body := test.out.Body.String()
-			if body != test.out.Body.String() {
+			if body != test.expectedBody {
 				t.Logf(logFmt, test.expectedBody, body)
 				t.Fail()
 			}
