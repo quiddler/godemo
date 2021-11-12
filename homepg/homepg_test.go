@@ -3,6 +3,8 @@ package homepg
 import (
 	"net/http"
 	"net/http/httptest"
+	"strconv"
+	"strings"
 	"testing"
 )
 
@@ -21,7 +23,7 @@ func Test(t *testing.T) {
 			in:             httptest.NewRequest("GET", "/", nil),
 			out:            httptest.NewRecorder(),
 			expectedStatus: http.StatusOK,
-			expectedBody:   "whell i do love me some testin' dare boi",
+			expectedBody:   "\"{\\\"first\\\":\\\"Eliot\\\",\\\"last\\\":\\\"Easterling\\\",\\\"middle\\\":\\\"D\\\",\\\"phone\\\":\\\"234-703-9147\\\",\\\"dob\\\":\\\"1982-10-04T11:30:00+04:00\\\"}\\n\"",
 		},
 	}
 	for _, test := range tests {
@@ -37,8 +39,10 @@ func Test(t *testing.T) {
 			}
 
 			body := test.out.Body.String()
-			if body != test.expectedBody {
+			body = strconv.Quote(body)
+			if strings.Compare(body, test.expectedBody) != 0 {
 				t.Logf(logFmt, test.expectedBody, body)
+				//t.Logf("%v", body == test.expectedBody)
 				t.Fail()
 			}
 		})
