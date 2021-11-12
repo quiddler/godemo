@@ -3,12 +3,11 @@ package homepg
 import (
 	"net/http"
 	"net/http/httptest"
-	"strconv"
 	"strings"
 	"testing"
 )
 
-const logFmt = "expected %v got %v\n"
+const logFmt = "\nexpected:\n%v\n got \n%v\n"
 
 func Test(t *testing.T) {
 	tests := []struct {
@@ -23,11 +22,11 @@ func Test(t *testing.T) {
 			in:             httptest.NewRequest("GET", "/", nil),
 			out:            httptest.NewRecorder(),
 			expectedStatus: http.StatusOK,
-			expectedBody:   "\"{\\\"first\\\":\\\"Eliot\\\",\\\"last\\\":\\\"Easterling\\\",\\\"middle\\\":\\\"D\\\",\\\"phone\\\":\\\"234-703-9147\\\",\\\"dob\\\":\\\"1982-10-04T11:30:00+04:00\\\"}\\n\"",
+			expectedBody:   `{"first":"Eliot","last":"Easterling","middle":"D","phone":"234-703-9147","dob":"1982-10-04T11:30:00+04:00"}`,
 		},
 	}
 	for _, test := range tests {
-		test := test // test.name will be wrong when tests are run in parrallel totherwise
+		test := test // test.name will be wrong when tests are run in parrallel, otherwise
 
 		t.Run(test.name, func(t *testing.T) {
 			h := New(nil)
@@ -39,10 +38,10 @@ func Test(t *testing.T) {
 			}
 
 			body := test.out.Body.String()
-			body = strconv.Quote(body)
-			if strings.Compare(body, test.expectedBody) != 0 {
+			body = strings.Trim(body, "\n\r\t ")
+
+			if body != test.expectedBody {
 				t.Logf(logFmt, test.expectedBody, body)
-				//t.Logf("%v", body == test.expectedBody)
 				t.Fail()
 			}
 		})
