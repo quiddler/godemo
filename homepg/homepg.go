@@ -5,23 +5,9 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/quiddler/godemo/person"
 )
-
-type person struct {
-	First  string    `json:"first"`
-	Last   string    `json:"last"`
-	Middle string    `json:"middle"`
-	Phone  string    `json:"phone"`
-	Dob    time.Time `json:"dob"`
-}
-
-var p = person{
-	First:  "Eliot",
-	Last:   "Easterling",
-	Middle: "D",
-	Phone:  "234-703-9147",
-	Dob:    time.Date(1982, 10, 4, 11, 30, 0, 0, time.FixedZone("EST", (4*60*60))),
-}
 
 const (
 	begFmt = "process '/' request from %s at %s\n"
@@ -42,10 +28,9 @@ func (h *HomePage) Handler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Content-Type", "application/javascript; charset=utf-8")
 	w.Header().Add("Strict-Transport-Security", "max-age=63072000; includeSubDomains")
 
-	w.WriteHeader(http.StatusOK)
-
-	err := json.NewEncoder(w).Encode(p)
+	err := json.NewEncoder(w).Encode(person.New())
 	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		h.Logger.Println("Json encoding failed in homepg")
 	}
 }
